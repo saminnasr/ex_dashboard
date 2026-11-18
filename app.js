@@ -52,15 +52,36 @@
     $("companyCount").textContent = fa(new Set(allRows.map(r=>norm(r.company)).filter(Boolean)).size);
     $("phoneCount").textContent = fa(allRows.filter(r => r.phone).length);
   }
-  function renderChart() {
-    const counts = {};
-    allRows.forEach(r => { const v = String(r.activity_service || "").trim(); if (v) counts[v] = (counts[v]||0)+1; });
-    const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    const max = Math.max(1, ...top.map(x=>x[1]));
-    $("activityChart").innerHTML = top.length ? top.map(([name,n]) =>
-      `<div class="bar-row"><div class="bar-label" title="${escapeHtml(name)}">${escapeHtml(name)}</div><div class="bar-track"><div class="bar-fill" style="width:${n/max*100}%"></div></div><div class="bar-value">${fa(n)}</div></div>`
-    ).join("") : '<div class="empty">داده‌ای برای نمایش وجود ندارد.</div>';
-  }
+function renderChart() {
+  const counts = {};
+
+  allRows.forEach(r => {
+    const v = norm(r.activity_service)
+      .replace(/[\u200c\u200f\u200e]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (v) counts[v] = (counts[v] || 0) + 1;
+  });
+
+  const top = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  const max = Math.max(1, ...top.map(x => x[1]));
+
+  $("activityChart").innerHTML = top.length
+    ? top.map(([name, n]) =>
+      `<div class="bar-row">
+        <div class="bar-label" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${n/max*100}%"></div>
+        </div>
+        <div class="bar-value">${fa(n)}</div>
+      </div>`
+    ).join("")
+    : '<div class="empty">داده‌ای برای نمایش وجود ندارد.</div>';
+}
   function escapeHtml(v) {
     return String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   }
