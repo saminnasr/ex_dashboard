@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142b3b">
+  <title>داشبورد مراجعین نمایشگاه</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">EX</div>
+      <div><div class="eyebrow">گزارش مدیریتی</div><h1>داشبورد مراجعین نمایشگاه</h1></div>
+    </div>
+    <div class="header-actions">
+      <span class="live-dot"></span><span id="connectionStatus">در حال اتصال...</span>
+      <button id="refreshBtn" class="btn btn-light">↻ بروزرسانی</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <div><div class="eyebrow">EXHIBITION CONTACTS</div><h2>بانک اطلاعات بازدیدکنندگان و سرنخ‌های تجاری</h2>
+      <p>جستجو، فیلتر و بررسی اطلاعات مراجعین نمایشگاه در یک نمای یکپارچه</p></div>
+      <div class="intro-icon">▤</div>
+    </section>
+
+    <section class="stats" aria-label="آمار کلی">
+      <article class="stat-card"><div class="stat-label">کل رکوردها</div><div class="stat-value" id="totalCount">—</div><div class="stat-foot">تمام اطلاعات ثبت‌شده</div></article>
+      <article class="stat-card"><div class="stat-label">نام‌های ثبت‌شده</div><div class="stat-value" id="nameCount">—</div><div class="stat-foot">رکورد دارای نام</div></article>
+      <article class="stat-card"><div class="stat-label">شرکت‌های ثبت‌شده</div><div class="stat-value" id="companyCount">—</div><div class="stat-foot">مقادیر یکتای ستون شرکت</div></article>
+      <article class="stat-card"><div class="stat-label">شماره‌های تماس</div><div class="stat-value" id="phoneCount">—</div><div class="stat-foot">رکورد دارای مقدار تماس</div></article>
+    </section>
+
+    <section class="panel chart-panel">
+      <div class="panel-heading"><div><h3>نمای کلی حوزه فعالیت / خدمات</h3><p>بر اساس مقادیر ثبت‌شده در فایل اولیه</p></div><span class="muted-tag">۵ مورد پرتکرار</span></div>
+      <div id="activityChart" class="bar-chart"><div class="empty">در حال آماده‌سازی نمودار...</div></div>
+    </section>
+
+    <section class="panel table-panel">
+      <div class="panel-heading table-heading">
+        <div><h3>بانک اطلاعات مراجعین</h3><p id="resultSummary">تمام رکوردها</p></div>
+        <div class="table-actions">
+          <button id="exportBtn" class="btn btn-primary">↓ خروجی CSV / Excel</button>
+          <button id="clearBtn" class="btn btn-outline">پاک‌کردن فیلترها</button>
+        </div>
+      </div>
+      <div class="global-search">
+        <span>⌕</span><input id="globalSearch" type="search" placeholder="جستجو در تمام ستون‌ها؛ نام، شرکت، حوزه فعالیت، شماره تماس و توضیحات...">
+      </div>
+      <div class="filters-title"><strong>فیلتر اختصاصی ستون‌ها</strong><span>می‌توانید چند فیلتر را هم‌زمان اعمال کنید</span></div>
+      <div class="filters">
+        <label>نام مراجعه‌کننده<input data-filter="visitor_name" type="search" placeholder="فیلتر نام"></label>
+        <label>شرکت<input data-filter="company" type="search" placeholder="فیلتر شرکت"></label>
+        <label>حوزه فعالیت / خدمات<input data-filter="activity_service" type="search" placeholder="فیلتر حوزه"></label>
+        <label>شماره تماس<input data-filter="phone" type="search" placeholder="فیلتر شماره"></label>
+        <label>توضیحات تکمیلی<input data-filter="extra_notes" type="search" placeholder="فیلتر توضیحات"></label>
+      </div>
+      <div class="table-meta"><span id="visibleCount">۰ رکورد</span><label class="page-size">تعداد در صفحه
+        <select id="pageSize"><option>10</option><option selected>25</option><option>50</option><option>100</option></select>
+      </label></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th data-sort="visitor_name">نام <span>↕</span></th>
+            <th data-sort="company">شرکت <span>↕</span></th>
+            <th data-sort="activity_service">حوزه فعالیت / خدمات <span>↕</span></th>
+            <th data-sort="phone">شماره تماس <span>↕</span></th>
+            <th data-sort="extra_notes">توضیحات تکمیلی <span>↕</span></th>
+          </tr></thead>
+          <tbody id="tableBody"><tr><td colspan="5" class="empty">در حال دریافت اطلاعات...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination"><button id="prevBtn" class="btn btn-outline">قبلی</button><span id="pageInfo">صفحه ۱ از ۱</span><button id="nextBtn" class="btn btn-outline">بعدی</button></div>
+    </section>
+    <footer>داشبورد فقط‌خواندنی · داده‌ها از پایگاه داده Supabase دریافت می‌شوند</footer>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+</body>
+</html>
